@@ -1,60 +1,104 @@
 #include "sort.h"
 
 /**
- * heap_sort - sorts an array following the Heap sort algorithm
- * @array: array of ints to sort
- * @size: size of the array to sort
+ * iParent - returns index of parent node for an array arranged as a binary
+ * tree, for index i
+ * @i: starting index to determine parent node index
+ * Return: index of parent node
  */
-void heap_sort(int *array, size_t size)
+int iParent(int i)
 {
-	int i;
-	int tmp;
+	return ((i - 1) / 2);
+}
 
-	if (size < 2)
-		return;
+/**
+ * iLeftChild- returns index of left child branch for an array arranged as
+ * a binary tree, for index i
+ * @i: starting index to determine left child branch index
+ * Return: index of left child node
+ */
+int iLeftChild(int i)
+{
+	return ((2 * i) + 1);
+}
 
-	for (i = size / 2 - 1; i >= 0; i--)
-		heapify(array, size, (size_t)i, size);
+/**
+ * ConvertToHeap - arranges array of integers into a heap/binary tree scheme
+ * @array: array of integers
+ * @size: number of elements in array
+ */
+void ConvertToHeap(int *array, size_t size)
+{
+	int start;
 
-	for (i = size - 1; i >= 0; i--)
+	start = iParent(size - 1);
+
+	while (start >= 0)
 	{
-		tmp = array[i];
-		array[i] = array[0];
-		array[0] = tmp;
-		if (i != 0)
-			print_array(array, size);
-		heapify(array, (size_t)i, 0, size);
+		SiftDown(array, size, start, size - 1);
+		start--;
 	}
 }
 
 /**
- * heapify - turns an array in a heap tree
- * @array: array to turn into heap
- * @s: size of the subtree
- * @root: index of the subtree in the heap
- * @size: size of the whole array
+ * SiftDown - shuffles heap/binary tree sorted array into array sorted by
+ * ascending value
+ * @array: array of values to be sorted in place, from heap to ascending
+ * @size: number of elements in array
+ * @start: starting index
+ * @end: ending index
  */
-void heapify(int *array, size_t s, size_t root, size_t size)
+void SiftDown(int *array, size_t size, int start, int end)
 {
-	size_t max, left, right;
-	int tmp;
+	int root, swap, temp, child;
 
-	max = root;
-	left = (root * 2) + 1;
-	right = (root * 2) + 2;
+	root = start;
 
-	if (left < s && array[left] > array[max])
-		max = left;
-
-	if (right < s && array[right] > array[max])
-		max = right;
-
-	if (max != root)
+	while (iLeftChild(root) <= end)
 	{
-		tmp = array[root];
-		array[root] = array[max];
-		array[max] = tmp;
+		child = iLeftChild(root);
+		swap = root;
+
+		if (array[swap] < array[child])
+			swap = child;
+		if (child + 1 <= end && array[swap] < array[child + 1])
+			swap = child + 1;
+		if (swap != root)
+		{
+			temp = array[root];
+			array[root] = array[swap];
+			array[swap] = temp;
+			print_array(array, size);
+			root = swap;
+		}
+		else
+			return;
+	}
+}
+
+/**
+ * heap_sort - sorts array of integers in ascending order using a heap sort
+ * sift-down alogrithm
+ * @array: array of values to be sorted
+ * @size: number of elements in array
+ */
+void heap_sort(int *array, size_t size)
+{
+	int iEnd, temp;
+
+	if (!array || size < 2)
+		return;
+
+	ConvertToHeap(array, size);
+
+	iEnd =  (int)size - 1;
+	while (iEnd > 0)
+	{
+		temp = array[iEnd];
+		array[iEnd] = array[0];
+		array[0] = temp;
 		print_array(array, size);
-		heapify(array, s, max, size);
+		iEnd--;
+		SiftDown(array, size, 0, iEnd);
 	}
 }
